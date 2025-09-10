@@ -1,3 +1,5 @@
+
+
 const Product = require("../models/Product");
 
 // GET all products
@@ -31,4 +33,26 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { getProducts, addProduct, deleteProduct };
+
+// UPDATE product
+const updateProduct = async (req, res) => {
+  try {
+    console.log(req.params.id);
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true}
+    );
+    if (!updated) {
+       console.log("hii")
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json(updated);
+  } catch (error) {
+     console.log("hii")
+    res.status(400).json({ message: "Error updating product" });
+
+  }
+};
+
+module.exports = { getProducts, addProduct, deleteProduct, updateProduct };

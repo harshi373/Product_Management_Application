@@ -23,13 +23,21 @@ export const addProduct = async (product) => {
 
 // Update product
 export const updateProduct = async (id, updatedProduct) => {
-  try{
+  try {
+    console.log("📡 PUT Request Body:", updatedProduct);
+
     const res = await axios.put(`${API_URL}/${id}`, updatedProduct);
-    return res.data;}
-    catch(error){
-      throw error;
-    }
+
+
+    return res.data;
+  } catch (error) {
+    console.error("❌ PUT Error:", error.response || error.message);
+    throw error;
+  }
+
+
 };
+
 
 // Delete product
 export const deleteProduct = async (id) => {

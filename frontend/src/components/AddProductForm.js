@@ -1,60 +1,69 @@
 import React, { useState } from "react";
-import { Button, Dialog, TextField } from "@mui/material";
+import { Button, TextField, Paper, Typography, Box } from "@mui/material";
 import { addProduct } from "../services/productService";
 
+
 function AddProductForm({ onProductAdded }) {
-  const [open, setOpen] = useState(false);
-  const [product, setProduct] = useState({ name: "", price: "", description: "" });
+  const [product, setProduct] = useState({ name: "", price: "", description: "", category: "" });
 
-  const handleSubmit = async () => {
-  try {
-    const newProduct = await addProduct(product);
-    onProductAdded(newProduct);
-    setOpen(false);
-    setProduct({ name: "", price: "", description: "" });
-    alert("Product added successfully!");
-  } catch (error) {
-    console.error("Error adding product:", error);
-    alert("Failed to add product. Please try again.");
-  }
-};
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const newProduct = await addProduct(product);
+      onProductAdded(newProduct);
+  setProduct({ name: "", price: "", description: "", category: "" });
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to add product. Please try again.");
+    }
+  };
 
   return (
-    <>
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{ mt: 2, mb: 2 }}
-        onClick={() => setOpen(true)}
-      >
-        Add Product
-      </Button>
-
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "10px" }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Paper elevation={4} sx={{ p: 4, width: 350, borderRadius: 3 }}>
+        <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 600 }}>
+          Add New Product
+        </Typography>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <TextField
-            label="Name"
+            label="Product Name"
             value={product.name}
             onChange={(e) => setProduct({ ...product, name: e.target.value })}
+            required
+            fullWidth
           />
           <TextField
             label="Price"
             type="number"
             value={product.price}
             onChange={(e) => setProduct({ ...product, price: e.target.value })}
+            required
+            fullWidth
+            inputProps={{ min: 0 }}
           />
           <TextField
             label="Description"
             value={product.description}
             onChange={(e) => setProduct({ ...product, description: e.target.value })}
+            multiline
+            rows={2}
+            fullWidth
+            required
           />
-          <Button onClick={handleSubmit} variant="contained">
-            Save
+          <TextField
+            label="Category"
+            value={product.category}
+            onChange={(e) => setProduct({ ...product, category: e.target.value })}
+            required
+            fullWidth
+          />
+          <Button type="submit" variant="contained" color="primary" size="large" sx={{ mt: 2 }}>
+            Add Product
           </Button>
-        </div>
-      </Dialog>
-    </>
+        </form>
+      </Paper>
+    </Box>
   );
 }
 

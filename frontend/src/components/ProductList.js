@@ -26,7 +26,7 @@ function ProductList({ products, onProductUpdated, onProductDeleted }) {
     });
 
   return (
-    <Container sx={{ mt: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: 4, px: { xs: 1, sm: 2, md: 3 }, pl: { xs: 1, sm: 4, md: 7, lg: 10 } }}>
       <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
         <TextField
           label="Search Products"
@@ -48,17 +48,23 @@ function ProductList({ products, onProductUpdated, onProductDeleted }) {
         </FormControl>
       </div>
 
-      <Grid container spacing={3}>
-        {filteredProducts.map((product) => (
-          <Grid item xs={12} sm={6} md={4} key={product._id}>
-            <ProductCard
-              product={product}
-              onProductUpdated={onProductUpdated}
-              onProductDeleted={onProductDeleted}
-            />
-          </Grid>
-        ))}
-      </Grid>
+      {filteredProducts.length === 0 ? (
+        <div style={{ textAlign: 'center', color: '#888', marginTop: 40, fontSize: 22, fontWeight: 500 }}>
+          No products found.
+        </div>
+      ) : (
+        <Grid container spacing={3} justifyContent="flex-start" alignItems="stretch">
+          {filteredProducts.map((product) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={product._id} display="flex">
+              <ProductCard
+                product={product}
+                onProductUpdated={onProductUpdated}
+                onProductDeleted={onProductDeleted}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Container>
   );
 }
