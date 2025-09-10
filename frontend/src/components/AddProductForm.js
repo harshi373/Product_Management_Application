@@ -1,24 +1,60 @@
 import React, { useState } from "react";
+import { Button, Dialog, TextField } from "@mui/material";
+import { addProduct } from "../services/productService";
 
-function AddProductForm({ onAdd }) {
-  const [form, setForm] = useState({ name: "", price: "", description: "", category: "" });
+function AddProductForm({ onProductAdded }) {
+  const [open, setOpen] = useState(false);
+  const [product, setProduct] = useState({ name: "", price: "", description: "" });
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleSubmit = async () => {
+  try {
+    const newProduct = await addProduct(product);
+    onProductAdded(newProduct);
+    setOpen(false);
+    setProduct({ name: "", price: "", description: "" });
+    alert("Product added successfully!");
+  } catch (error) {
+    console.error("Error adding product:", error);
+    alert("Failed to add product. Please try again.");
+  }
+};
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onAdd({ ...form, price: Number(form.price) });
-    setForm({ name: "", price: "", description: "", category: "" });
-  };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-      <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
-      <input name="price" type="number" placeholder="Price" value={form.price} onChange={handleChange} required />
-      <input name="description" placeholder="Description" value={form.description} onChange={handleChange} />
-      <input name="category" placeholder="Category" value={form.category} onChange={handleChange} />
-      <button type="submit">Add Product</button>
-    </form>
+    <>
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2, mb: 2 }}
+        onClick={() => setOpen(true)}
+      >
+        Add Product
+      </Button>
+
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "10px" }}>
+          <TextField
+            label="Name"
+            value={product.name}
+            onChange={(e) => setProduct({ ...product, name: e.target.value })}
+          />
+          <TextField
+            label="Price"
+            type="number"
+            value={product.price}
+            onChange={(e) => setProduct({ ...product, price: e.target.value })}
+          />
+          <TextField
+            label="Description"
+            value={product.description}
+            onChange={(e) => setProduct({ ...product, description: e.target.value })}
+          />
+          <Button onClick={handleSubmit} variant="contained">
+            Save
+          </Button>
+        </div>
+      </Dialog>
+    </>
   );
 }
 

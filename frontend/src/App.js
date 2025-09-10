@@ -1,57 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { getProducts, addProduct } from "./services/productService";
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import ProductList from "./components/ProductList";
+import AddProductForm from "./components/AddProductForm";
+import { getProducts } from "./services/productService";
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name: "", price: "" });
 
-  // Fetch products on load
+  // Load products when app starts
   useEffect(() => {
-    fetchData();
+    getProducts().then((res) => setProducts(res));
   }, []);
 
-  const fetchData = async () => {
-    const data = await getProducts();
-    setProducts(data);
+  // Add product to state
+  const handleProductAdded = (newProduct) => {
+    setProducts([...products, newProduct]);
   };
 
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
-    await addProduct(newProduct);
-    setNewProduct({ name: "", price: "" });
-    fetchData(); // refresh list
+  // Update product in state (after editing)
+  const handleProductUpdated = (updatedProduct) => {
+    setProducts(
+      products.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
+    );
+  };
+
+  // Delete product from state
+  const handleProductDeleted = (id) => {
+    setProducts(products.filter((p) => p._id !== id));
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Product Management</h1>
-
-      {/* Add Product Form */}
-      <form onSubmit={handleAddProduct}>
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={newProduct.name}
-          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+    <>
+      <header>Product Management App</header>
+      <div className="app-container">
+        <AddProductForm onProductAdded={handleProductAdded} />
+        <ProductList
+          products={products}
+          onProductUpdated={handleProductUpdated}
+          onProductDeleted={handleProductDeleted}
         />
-        <input
-          type="number"
-          placeholder="Price"
-          value={newProduct.price}
-          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-        />
-        <button type="submit">Add Product</button>
-      </form>
-
-      {/* Show Products */}
-      <ul>
-        {products.map((p) => (
-          <li key={p._id}>
-            {p.name} - ₹{p.price}
-          </li>
-        ))}
-      </ul>
-    </div>
+      </div>
+    </>
   );
 }
 
