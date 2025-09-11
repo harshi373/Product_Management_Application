@@ -10,8 +10,13 @@ import {
   Chip,
   Stack
 } from "@mui/material";
+
 import { deleteProduct, updateProduct } from "../services/productService";
 
+
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
 
 function ProductCard({ product, onProductUpdated, onProductDeleted }) {
   const [open, setOpen] = useState(false);
@@ -60,11 +65,11 @@ const handleEditSave = async () => {
           label={product.category}
           color="primary"
           size="small"
-          sx={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}
+          sx={{ position: 'absolute', top: 10, right: 10, zIndex: 2, fontWeight: 700 }}
         />
       )}
   <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', p: 0, pb: 1 }}>
-  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, fontSize: 18 }} noWrap>{product.name}</Typography>
+  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, fontSize: 18 }} noWrap>{toTitleCase(product.name || "")}</Typography>
 
         <Typography
           variant="body2"
@@ -84,8 +89,22 @@ const handleEditSave = async () => {
         >
           {product.description || <span style={{ color: '#bbb' }}>No description provided.</span>}
         </Typography>
-        <Typography variant="h6" color="secondary" sx={{ fontWeight: 600, mb: 1, fontSize: 17 }}>
-          ${product.price}
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 600, 
+            mb: 1, 
+            fontSize: 17, 
+            opacity: 1, 
+            color: '#FFC107', // force visible amber color
+            textShadow: '0 1px 4px #000' // add shadow for contrast
+          }}
+        >
+          {typeof product.price === 'number' && !isNaN(product.price)
+            ? `$${product.price.toFixed(2)}`
+            : product.price && !isNaN(Number(product.price))
+              ? `$${Number(product.price).toFixed(2)}`
+              : 'N/A'}
         </Typography>
       </CardContent>
   <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, pb: 0.5, pt: 0 }}>

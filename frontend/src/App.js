@@ -3,6 +3,7 @@ import "./App.css";
 import ProductList from "./components/ProductList";
 import AddProductForm from "./components/AddProductForm";
 import HomeHero from "./components/HomeHero";
+import ProductIcon from "./components/ProductIcon";
 import { getProducts } from "./services/productService";
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,35 +13,30 @@ import Box from '@mui/material/Box';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
-function getTheme(mode) {
+function getTheme() {
   return createTheme({
     palette: {
-      mode,
+      mode: 'dark',
       background: {
-        default: mode === 'dark' ? '#212121' : '#FAFAFA',
-        paper: mode === 'dark' ? '#424242' : '#FFFFFF',
+        default: '#222326', // charcoal black
+        paper: '#2d2d2d',   // slightly lighter charcoal
       },
       primary: {
-        main: '#FFC107',
-        contrastText: mode === 'dark' ? '#212121' : '#232946',
+        main: '#FFC107', // amber
+        contrastText: '#222326',
       },
       secondary: {
-        main: mode === 'dark' ? '#757575' : '#F5F5F5',
+        main: '#222326', // charcoal black
+        contrastText: '#FFC107',
       },
       text: {
-        primary: mode === 'dark' ? '#fff' : '#232946',
-        secondary: mode === 'dark' ? '#FFC107' : '#757575',
+        primary: '#fff',
+        secondary: '#FFC107',
       },
-      error: {
-        main: '#FF5252',
-      },
-      warning: {
-        main: '#FFC107',
-      },
-      success: {
-        main: '#B9F6CA',
-      },
+      divider: '#2d2d2d',
     },
     typography: {
       fontFamily: 'Inter, Roboto, Arial, sans-serif',
@@ -52,40 +48,35 @@ function getTheme(mode) {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            background: mode === 'dark'
-              ? 'linear-gradient(90deg, #212121 0%, #FFC107 100%)'
-              : 'linear-gradient(90deg, #FFF8E1 0%, #FFC107 100%)',
-            color: mode === 'dark' ? '#fff' : '#232946',
-            boxShadow: mode === 'dark'
-              ? '0 2px 8px 0 rgba(33,33,33,0.10)'
-              : '0 2px 8px 0 rgba(255,193,7,0.10)',
+            background: 'linear-gradient(135deg, #222326 0%, #FFC107 100%)',
+            color: '#fff',
+            boxShadow: '0 4px 24px 0 rgba(33,33,33,0.10)',
           },
         },
       },
       MuiButton: {
         styleOverrides: {
           containedPrimary: {
-            background: mode === 'dark'
-              ? 'linear-gradient(90deg, #FFC107 0%, #424242 100%)'
-              : 'linear-gradient(90deg, #FFC107 0%, #FFF8E1 100%)',
-            color: mode === 'dark' ? '#212121' : '#232946',
+            borderRadius: 12,
+            fontWeight: 700,
+            background: 'linear-gradient(90deg, #FFC107 0%, #222326 100%)',
+            color: '#222326',
+            boxShadow: '0 2px 8px 0 rgba(33,33,33,0.10)',
             '&:hover': {
-              background: mode === 'dark'
-                ? 'linear-gradient(90deg, #424242 0%, #FFC107 100%)'
-                : 'linear-gradient(90deg, #FFF8E1 0%, #FFC107 100%)',
+              background: 'linear-gradient(90deg, #222326 0%, #FFC107 100%)',
               color: '#FFC107',
             },
           },
-          outlined: {
+          outlinedPrimary: {
+            borderRadius: 12,
+            fontWeight: 700,
             borderColor: '#FFC107',
             color: '#FFC107',
-            background: mode === 'dark' ? 'rgba(255,193,7,0.05)' : 'rgba(255,193,7,0.05)',
+            background: 'rgba(255,193,7,0.05)',
             '&:hover': {
-              borderColor: mode === 'dark' ? '#424242' : '#FFF8E1',
-              color: mode === 'dark' ? '#424242' : '#FFF8E1',
-              background: mode === 'dark'
-                ? 'rgba(66,66,66,0.15)'
-                : 'rgba(255,248,225,0.15)',
+              borderColor: '#222326',
+              color: '#222326',
+              background: 'rgba(34,35,38,0.15)',
             },
           },
         },
@@ -93,7 +84,8 @@ function getTheme(mode) {
       MuiPaper: {
         styleOverrides: {
           root: {
-            background: mode === 'dark' ? '#424242' : '#FFFFFF',
+            background: 'linear-gradient(135deg, #222326 0%, #2d2d2d 100%)',
+            color: '#fff',
           },
         },
       },
@@ -104,16 +96,18 @@ function getTheme(mode) {
 function App() {
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState('home');
-  const [mode, setMode] = useState('light');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     getProducts().then((res) => setProducts(res));
   }, []);
 
-  const theme = useMemo(() => getTheme(mode), [mode]);
+  const theme = useMemo(() => getTheme(), []);
 
   const handleProductAdded = (newProduct) => {
     setProducts([...products, newProduct]);
+    setSnackbarOpen(true);
+    setPage('products');
   };
   const handleProductUpdated = (updatedProduct) => {
     setProducts(
@@ -124,24 +118,65 @@ function App() {
     setProducts(products.filter((p) => p._id !== id));
   };
 
-  const toggleMode = () => setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setSnackbarOpen(false);
+  };
 
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
+          <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+            <MuiAlert 
+              onClose={handleSnackbarClose} 
+              severity="success" 
+              sx={{ width: '100%', bgcolor: '#111', color: '#fff', border: '1px solid #fff', fontWeight: 700 }} 
+              elevation={6} 
+              variant="filled"
+            >
+              Product added! Check in Products.
+            </MuiAlert>
+          </Snackbar>
           <AppBar position="static">
             <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                Product Management App
-              </Typography>
-              <Button color="inherit" onClick={() => setPage('home')}>Home</Button>
-              <Button color="inherit" onClick={() => setPage('products')}>Products</Button>
-              <Button color="inherit" onClick={() => setPage('add')}>Add Product</Button>
-              <Button color="inherit" onClick={toggleMode} sx={{ ml: 2 }}>
-                {mode === 'light' ? 'Dark Mode' : 'Light Mode'}
-              </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+                <ProductIcon sx={{ fontSize: { xs: 36, sm: 44 }, mr: 1, color: '#FFC107' }} />
+                <Typography variant="h6" sx={{ fontSize: { xs: '1.5rem', sm: '2rem' }, fontWeight: 800 }}>
+                  Product Management App
+                </Typography>
+              </Box>
+              <Button 
+                color="inherit" 
+                sx={{ 
+                  fontSize: { xs: '1rem', sm: '1.25rem' }, 
+                  fontWeight: 700, 
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#FFC107', backgroundColor: 'rgba(255,255,255,0.04)' }
+                }} 
+                onClick={() => setPage('home')}
+              >Home</Button>
+              <Button 
+                color="inherit" 
+                sx={{ 
+                  fontSize: { xs: '1rem', sm: '1.25rem' }, 
+                  fontWeight: 700, 
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#FFC107', backgroundColor: 'rgba(255,255,255,0.04)' }
+                }} 
+                onClick={() => setPage('products')}
+              >Products</Button>
+              <Button 
+                color="inherit" 
+                sx={{ 
+                  fontSize: { xs: '1rem', sm: '1.25rem' }, 
+                  fontWeight: 700, 
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#FFC107', backgroundColor: 'rgba(255,255,255,0.04)' }
+                }} 
+                onClick={() => setPage('add')}
+              >Add Product</Button>
             </Toolbar>
           </AppBar>
           <Box sx={{ p: 3 }}>

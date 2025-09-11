@@ -10,20 +10,40 @@ import {
 } from "@mui/material";
 import ProductCard from "./ProductCard";
 
+function toTitleCase(str) {
+  return (str || '').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
+
 function ProductList({ products, onProductUpdated, onProductDeleted }) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("name");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
-  // filter + sort
+  // Get all unique categories in title case
+  const allCategories = Array.from(new Set(products.map(p => toTitleCase((p.category || 'Other').trim() || 'Other'))));
+
+  // filter + sort + category filter
   const filteredProducts = products
-    .filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter((p) => {
+      const cat = toTitleCase((p.category || 'Other').trim() || 'Other');
+      return (
+        p.name.toLowerCase().includes(search.toLowerCase()) &&
+        (!selectedCategory || cat === selectedCategory)
+      );
+    })
     .sort((a, b) => {
       if (sortBy === "name") return a.name.localeCompare(b.name);
       if (sortBy === "price") return a.price - b.price;
       return 0;
     });
+
+  // Group by category (for all view)
+  const productsByCategory = filteredProducts.reduce((acc, product) => {
+    const cat = (product.category || 'Other').trim() || 'Other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(product);
+    return acc;
+  }, {});
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, px: { xs: 1, sm: 2, md: 3 }, pl: { xs: 1, sm: 4, md: 7, lg: 10 } }}>
@@ -34,6 +54,20 @@ function ProductList({ products, onProductUpdated, onProductDeleted }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+
+        <FormControl variant="outlined" sx={{ minWidth: 140 }}>
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            label="Category"
+          >
+            <MenuItem value="">All Categories</MenuItem>
+            {allCategories.map((cat) => (
+              <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <FormControl variant="outlined">
           <InputLabel>Sort By</InputLabel>
