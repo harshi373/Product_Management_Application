@@ -69,7 +69,7 @@ const handleEditSave = async () => {
         />
       )}
   <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', p: 0, pb: 1 }}>
-  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, fontSize: 18 }} noWrap>{toTitleCase(product.name || "")}</Typography>
+  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, fontSize: 22 }} noWrap>{toTitleCase(product.name || "")}</Typography>
 
         <Typography
           variant="body2"
@@ -84,7 +84,7 @@ const handleEditSave = async () => {
             WebkitBoxOrient: 'vertical',
             textOverflow: 'ellipsis',
             whiteSpace: 'normal',
-            fontSize: 14
+            fontSize: 17
           }}
         >
           {product.description || <span style={{ color: '#bbb' }}>No description provided.</span>}
@@ -94,7 +94,7 @@ const handleEditSave = async () => {
           sx={{ 
             fontWeight: 600, 
             mb: 1, 
-            fontSize: 17, 
+            fontSize: 20, 
             opacity: 1, 
             color: '#FFC107', // force visible amber color
             textShadow: '0 1px 4px #000' // add shadow for contrast

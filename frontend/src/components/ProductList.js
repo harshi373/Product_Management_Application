@@ -46,7 +46,7 @@ function ProductList({ products, onProductUpdated, onProductDeleted }) {
   }, {});
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, px: { xs: 1, sm: 2, md: 3 }, pl: { xs: 1, sm: 4, md: 7, lg: 10 } }}>
+  <Container maxWidth="lg" sx={{ mt: 4, px: { xs: 2, sm: 4, md: 6, lg: 8 }, pl: { xs: 2, sm: 8, md: 12, lg: 16 } }}>
       <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
         <TextField
           label="Search Products"
